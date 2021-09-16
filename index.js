@@ -40,4 +40,5 @@ fs.readdir(`./src/${COMMANDS_DIR}/`, (err, files) => {
   })
 })
 
-client.login(CONFIG.BOT_TOKEN)
+const token = process.env['dtoken']
+client.login(token)
