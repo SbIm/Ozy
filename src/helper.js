@@ -256,6 +256,7 @@ const parse_playlist_list = (list) => {
   }
 
   msg += "```"
+  msg += "\n输入要播放的歌单序号如`1`，未公开歌单目前无法播放"
 
   return msg
 }
