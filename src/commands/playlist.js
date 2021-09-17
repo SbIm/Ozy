@@ -4,10 +4,12 @@ const {
   parse_playlist_list,
   invalid_number,
   reply_filter,
+  is_url,
 } = require("../helper")
 const {
   get_user_playlist,
   get_songs_from_playlist,
+  get_songs_by_pid,
 } = require("../api/netease/api")
 const { play } = require("../player")
 
@@ -19,36 +21,36 @@ module.exports = {
   run: async (client, message, args) => {
     try {
       let queue = assert_queue(message)
-      if (!queue.user) {
-        if (args.length === 1) {
-          let songs = []
-          if (is_url(args[0])) {
-            let plist_url = new URL(args[0])
-            let search_params = current_url.searchParams;
-            songs = await get_songs_from_playlist(search_params.get('id'))
-          } else {
-            songs = await get_songs_from_playlist(args[0])
-          }
-
-          if (songs.length > 0) {
-            for (let song of songs) {
-              queue.track.push(song)
-            }
-            message.channel.send(
-              `**Queued** ${songs.length} song${
-                songs.length > 1 ? "s" : ""
-              } from ${selected_playlist.name}`
-            )
-
-            if (!queue.playing) {
-              queue.playing = true
-              queue.curr_pos = queue.track.length - songs.length
-              play(message)
-            }
-          } else {
-            message.channel.send(`No songs to be added`)
-          }
+      // if (!queue.user) {
+      if (args.length === 1) {
+        let songs = []
+        if (is_url(args[0])) {
+          let plist_url = new URL(args[0])
+          let search_params = plist_url.searchParams
+          songs = await get_songs_by_pid(search_params.get('id'))
+        } else {
+          songs = await get_songs_by_pid(args[0])
         }
+
+        if (songs.length > 0) {
+          for (let song of songs) {
+            queue.track.push(song)
+          }
+          message.channel.send(
+            `**Queued** ${songs.length} song${
+              songs.length > 1 ? "s" : ""
+            } from the playlist`
+          )
+
+          if (!queue.playing) {
+            queue.playing = true
+            queue.curr_pos = queue.track.length - songs.length
+            play(message)
+          }
+        } else {
+          message.channel.send(`No songs to be added`)
+        }
+        // }
         // message.channel.send(`No user set!`)
       } else {
         let playlist = await get_user_playlist(queue.user.userId)
