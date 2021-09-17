@@ -1,3 +1,4 @@
+const url = require('url');
 const {
   assert_queue,
   parse_playlist_list,
@@ -19,7 +20,36 @@ module.exports = {
     try {
       let queue = assert_queue(message)
       if (!queue.user) {
-        message.channel.send(`No user set!`)
+        if (args.length === 1) {
+          let songs = []
+          if (is_url(args[0])) {
+            let plist_url = new URL(args[0])
+            let search_params = current_url.searchParams;
+            songs = await get_songs_from_playlist(search_params.get('id'))
+          } else {
+            songs = await get_songs_from_playlist(args[0])
+          }
+
+          if (songs.length > 0) {
+            for (let song of songs) {
+              queue.track.push(song)
+            }
+            message.channel.send(
+              `**Queued** ${songs.length} song${
+                songs.length > 1 ? "s" : ""
+              } from ${selected_playlist.name}`
+            )
+
+            if (!queue.playing) {
+              queue.playing = true
+              queue.curr_pos = queue.track.length - songs.length
+              play(message)
+            }
+          } else {
+            message.channel.send(`No songs to be added`)
+          }
+        }
+        // message.channel.send(`No user set!`)
       } else {
         let playlist = await get_user_playlist(queue.user.userId)
         message.channel.send(parse_playlist_list(playlist)).then(async () => {
