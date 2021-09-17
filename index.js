@@ -1,3 +1,4 @@
+//https://discord.com/api/oauth2/authorize?client_id=xxx&permissions=8&scope=bot
 const Discord = require("discord.js")
 const fs = require("fs")
 const { login } = require("./src/api/netease/api")
