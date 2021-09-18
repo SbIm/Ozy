@@ -50,7 +50,7 @@ const play = async (message) => {
   }
 
   if (!!url) {
-    message.channel.send(play_message)
+    // message.channel.send(play_message)
     dispatcher = queue.connection.play(url).on("finish", () => {
       play_next(message)
     })
